@@ -20,6 +20,14 @@
 
 
 
+### watermark
+
+​	AssignerWithPunctuatedWatermarks：不间断的水印
+
+​	AssignerWithPeriodicWatermarks：周期性水印
+
+
+
 ### Table Api 与 SQL
 
  	1. 加上 timestamp watermark

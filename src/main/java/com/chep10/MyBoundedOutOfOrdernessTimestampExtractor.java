@@ -3,6 +3,12 @@ package com.chep10;
 import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
 import org.apache.flink.streaming.api.windowing.time.Time;
 
+/**
+ * 周期性的水印
+ * 
+ * @author JayZhou
+ *
+ */
 public class MyBoundedOutOfOrdernessTimestampExtractor extends BoundedOutOfOrdernessTimestampExtractor<KafkaReading>{
 
 
