@@ -6,7 +6,7 @@ import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 
@@ -28,7 +28,7 @@ public class TimeWindowConsumer {
 		kafkaProperties.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 		kafkaProperties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 		
-		DataStreamSource<String> addSource = env.addSource(new FlinkKafkaConsumer011<String>("sensor", new SimpleStringSchema(), kafkaProperties));
+		DataStreamSource<String> addSource = env.addSource(new FlinkKafkaConsumer<String>("sensor", new SimpleStringSchema(), kafkaProperties));
 		
 		SingleOutputStreamOperator<Integer> returns = addSource.flatMap((String str,Collector<Integer> out) -> out.collect(Integer.valueOf(str.split(",")[0]))).returns(Integer.class);
 		

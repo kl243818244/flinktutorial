@@ -15,7 +15,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.AssignerWithPeriodicWatermarks;
 import org.apache.flink.streaming.api.watermark.Watermark;
 import org.apache.flink.streaming.api.windowing.time.Time;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.Tumble;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
@@ -34,7 +34,7 @@ public class KafkaTable {
 		Properties properties = new Properties();
 		properties.put("bootstrap.servers", "172.16.6.163:9092");
 		properties.put("group.id", "test-group3");
-		FlinkKafkaConsumer011<String> consumer08 = new FlinkKafkaConsumer011<>("sensor", new SimpleStringSchema(), properties);
+		FlinkKafkaConsumer<String> consumer08 = new FlinkKafkaConsumer<>("sensor", new SimpleStringSchema(), properties);
 		
 		
 		DataStream<Order> raw = env.addSource(consumer08).map(new MapFunction<String, Order>() {

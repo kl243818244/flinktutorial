@@ -6,7 +6,6 @@ import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 
 public class FlinkKafkaConsumer {
@@ -21,15 +20,15 @@ public class FlinkKafkaConsumer {
 
 		StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-		DataStreamSource<String> addSource = env
-				.addSource(new FlinkKafkaConsumer011<String>("sensor", new SimpleStringSchema(), kafkaProperties));
+/*		DataStreamSource<String> addSource = env
+				.addSource(new FlinkKafkaConsumer("topic", new SimpleStringSchema(), kafkaProperties));
 		
 		SingleOutputStreamOperator<SensorReading> sensorReadingStream = addSource
 				.map(str -> new SensorReading(str.split(",")[0], Long.valueOf(str.split(",")[1]),
 						Double.valueOf(str.split(",")[2])))
 				.returns(SensorReading.class);
 		
-		sensorReadingStream.print("===>");
+		sensorReadingStream.print("===>");*/
 
 		env.execute("执行");
 	}

@@ -1,13 +1,13 @@
 package com.commerce.userbehavioranalysis;
 
+import java.time.Duration;
+
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
-import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
@@ -25,9 +25,16 @@ public class TOPNHotItemsWithSQL {
 		EnvironmentSettings fsSettings = EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
 
 		StreamExecutionEnvironment executionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment();
+		
+//		executionEnvironment.setParallelism(1);
 
-		executionEnvironment.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
-
+		// 1.12.0 已经是默认 EventTime
+//		executionEnvironment.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
+		
+		WatermarkStrategy<UserBehavior> withTimestampAssigner = WatermarkStrategy
+		        .<UserBehavior>forBoundedOutOfOrderness(Duration.ofSeconds(20))
+		        .withTimestampAssigner((event, timestamp) -> event.getTs());
+		
 		StreamTableEnvironment tableEnv = StreamTableEnvironment.create(executionEnvironment, fsSettings);
 
 		DataStreamSource<String> readTextFile = executionEnvironment
@@ -44,15 +51,7 @@ public class TOPNHotItemsWithSQL {
 			userBehavior.setTs(Long.valueOf(split[4]));
 
 			return userBehavior;
-		}).returns(UserBehavior.class).assignTimestampsAndWatermarks(
-				new BoundedOutOfOrdernessTimestampExtractor<UserBehavior>(Time.seconds(1)) {
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public long extractTimestamp(UserBehavior element) {
-						return element.getTs() * 1000L;
-					}
-				});
+		}).returns(UserBehavior.class).assignTimestampsAndWatermarks(withTimestampAssigner);
 		
 		tableEnv.createTemporaryView("user_behavior", assignTimestampsAndWatermarks , "userId as user_id, itemId as item_id, categoryId as category_id, behavior, ts.rowtime");
 		
@@ -68,6 +67,8 @@ public class TOPNHotItemsWithSQL {
 		retractStream.print("====>");
 		
 //		retractStream.writeAsText("F:\\weining\\2021-1月份工作计划\\test.txt");
+		
+		// 默认是 upsert 模式
 		
 		String sinkDDL = "create table sensor_count \r\n" + 
 				"(\r\n" + 

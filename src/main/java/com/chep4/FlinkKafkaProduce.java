@@ -8,6 +8,7 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer011;
 
 public class FlinkKafkaProduce {
@@ -25,7 +26,7 @@ public class FlinkKafkaProduce {
 		SingleOutputStreamOperator<String> returns = dataStreamSource
 				.map(item -> item.getField(0) + "-" + item.getField(1)).returns(Types.STRING);
 
-		returns.addSink(new FlinkKafkaProducer011<String>("172.16.6.163:9092", "FlinkSinkConsumerTopic",
+		returns.addSink(new FlinkKafkaProducer<String>("172.16.6.163:9092", "FlinkSinkConsumerTopic",
 				new SimpleStringSchema()));
 
 		env.execute();
