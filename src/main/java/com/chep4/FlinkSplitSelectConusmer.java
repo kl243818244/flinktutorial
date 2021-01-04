@@ -1,18 +1,16 @@
 package com.chep4;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
-import org.apache.flink.streaming.api.datastream.SplitStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 public class FlinkSplitSelectConusmer {
 	
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception {/*
 		StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 		
 		DataStreamSource<String> dataStreamSource = env.readTextFile("D:\\STS\\STS4_WORKSPACES\\flinktutorial\\src\\main\\resources\\hello.txt");
@@ -41,6 +39,6 @@ public class FlinkSplitSelectConusmer {
 		lowSelect.print("lowSelect:");
 		
 		env.execute();
-	}
+	*/}
 	
 }

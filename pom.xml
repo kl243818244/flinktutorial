@@ -14,6 +14,14 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>validate-program-1222</name>
 	<description>flinktutorial</description>
+	
+	<!-- <flink-version>1.10.1</flink-version> -->
+	<properties>
+		
+		<flink-version>1.12.0</flink-version>
+	</properties>
+	
+	
 
 	<dependencies>
 
@@ -21,14 +29,24 @@
 		<dependency>
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-java</artifactId>
-			<version>1.10.1</version>
+			<version>${flink-version}</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.flink/flink-streaming-scala -->
+		
+		<!-- https://mvnrepository.com/artifact/org.apache.flink/flink-clients -->
 		<dependency>
+		    <groupId>org.apache.flink</groupId>
+		    <artifactId>flink-clients_2.12</artifactId>
+		    <version>1.12.0</version>
+		</dependency>
+
+		
+		
+		<!-- https://mvnrepository.com/artifact/org.apache.flink/flink-streaming-scala -->
+<!-- 		<dependency>
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-streaming-scala_2.12</artifactId>
-			<version>1.10.1</version>
-		</dependency>
+			<version>${flink-version}</version>
+		</dependency> -->
 		<dependency>
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-connector-kafka-0.11_2.12</artifactId>
@@ -48,7 +66,7 @@
 		<dependency>
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-connector-elasticsearch6_2.12</artifactId>
-			<version>1.10.1</version>
+			<version>${flink-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>mysql</groupId>
@@ -57,38 +75,38 @@
 		<dependency>
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-statebackend-rocksdb_2.12</artifactId>
-			<version>1.10.1</version>
+			<version>${flink-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-table-planner_2.12</artifactId>
-			<version>1.10.1</version>
+			<version>${flink-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-table-api-java-bridge_2.12</artifactId>
-			<version>1.10.1</version>
+			<version>${flink-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-table-planner-blink_2.12</artifactId>
-			<version>1.10.1</version>
+			<version>${flink-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-csv</artifactId>
-			<version>1.10.1</version>
+			<version>${flink-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-json</artifactId>
-			<version>1.10.1</version>
+			<version>${flink-version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-table-common</artifactId>
-			<version>1.10.1</version>
+			<version>${flink-version}</version>
 			<scope>provided</scope>
 		</dependency>
 
@@ -123,7 +141,7 @@
 		<dependency>
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-avro</artifactId>
-			<version>1.10.1</version>
+			<version>${flink-version}</version>
 		</dependency>
 
 
@@ -132,7 +150,13 @@
 			<artifactId>fastcsv</artifactId>
 			<version>1.0.3</version>
 		</dependency>
-		
+
+		<dependency>
+			<groupId>org.apache.flink</groupId>
+			<artifactId>flink-connector-jdbc_2.11</artifactId>
+			<version>${flink-version}</version>
+		</dependency>
+
 
 	</dependencies>
 	<build>

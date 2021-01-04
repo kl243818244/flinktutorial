@@ -8,7 +8,6 @@ import org.apache.flink.streaming.api.datastream.ConnectedStreams;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
-import org.apache.flink.streaming.api.datastream.SplitStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.co.CoMapFunction;
 
@@ -20,7 +19,7 @@ import org.apache.flink.streaming.api.functions.co.CoMapFunction;
  */
 public class FlinkConnectCoMapConsumer {
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception {/*
 
 		StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
@@ -52,9 +51,9 @@ public class FlinkConnectCoMapConsumer {
 		ConnectedStreams<SensorReading, SensorReading> connect = highSelect.connect(lowSelect);
 
 		SingleOutputStreamOperator<String> map = connect.map(new CoMapFunction<SensorReading, SensorReading, String>() {
-			/**
+			*//**
 			 * 
-			 */
+			 *//*
 			private static final long serialVersionUID = 7837809137169606260L;
 
 			@Override
@@ -71,6 +70,6 @@ public class FlinkConnectCoMapConsumer {
 		map.print("FlinkConnectCoMapConsumer：");
 		
 		env.execute();
-	}
+	*/}
 
 }

@@ -1,12 +1,16 @@
 package com.chep10;
 
-import com.alibaba.fastjson.JSON;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Properties;
+
+import javax.annotation.Nullable;
+
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.AssignerWithPeriodicWatermarks;
 import org.apache.flink.streaming.api.watermark.Watermark;
@@ -14,13 +18,10 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.Tumble;
-import org.apache.flink.table.api.java.StreamTableEnvironment;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 
-import javax.annotation.Nullable;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.Properties;
+import com.alibaba.fastjson.JSON;
  
 public class KafkaTable {
  
