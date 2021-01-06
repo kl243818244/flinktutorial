@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 
 
 //ODS_ENCOUNTER_REGISTER
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 public class OdsEncounterRegister implements Serializable {
 	private static final long serialVersionUID = 538897534627694070L;
 
@@ -23,6 +23,7 @@ public class OdsEncounterRegister implements Serializable {
 	private java.math.BigDecimal CsChannelTypeCode;//
 
 	private java.math.BigDecimal EncounterChargeStatus;//
+
 
 	private java.math.BigDecimal RegisteringOperatorId;//
 
@@ -59,4 +60,12 @@ public class OdsEncounterRegister implements Serializable {
 	private java.util.Date OdsTimestamp;//
 
 	private java.util.Date OdsCreatedate;//
+	
+	private Long ts;
+	
+	public Long getTs() {
+		return this.RegisteredAt.getTime();
+	}
+	
+	
 }

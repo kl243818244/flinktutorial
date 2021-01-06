@@ -12,20 +12,28 @@ import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.table.api.EnvironmentSettings;
+import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.types.Row;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.commerce.userbehavioranalysis.CSVReaderWithSQL.UserBehavior;
+import com.quota.entity.OdsClinicalHerbRecipe;
 import com.quota.entity.OdsEncounterRegister;
+import com.quota.entity.Settlement;
+
 import static org.apache.flink.table.api.Expressions.*;
 
 // 挂号人次
 public class registeredPeopleIndex {
 
 	public final static Integer REGISTERED_CONFIRM = 376749;
+	
+	public final static Integer SETTLEMENT = 399303919;
+	
+	public final static Integer HERB_RECIPE = 376582;
 
 	public static void main(String[] args) throws Exception {
 		EnvironmentSettings fsSettings = EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
@@ -38,7 +46,7 @@ public class registeredPeopleIndex {
 
 		Properties properties = new Properties();
 		properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "172.16.6.161:9092");
-		properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "testxsdddx");
+		properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "test66566");
 		properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
 		DataStream<String> kafkaStream = executionEnvironment.addSource(
@@ -47,8 +55,7 @@ public class registeredPeopleIndex {
 		// 挂号确认的流
 		WatermarkStrategy<OdsEncounterRegister> odsEncounterRegisterWithTimestampAssigner = WatermarkStrategy
 		        .<OdsEncounterRegister>forBoundedOutOfOrderness(Duration.ofSeconds(20))
-		        .withTimestampAssigner((event, timestamp) -> event.getRegisteredAt().getTime());
-		
+		        .withTimestampAssigner((event, timestamp) -> event.getTs());
 		
 		SingleOutputStreamOperator<OdsEncounterRegister> odsEncounterRegisterReturnsStream = kafkaStream
 				.filter(new FilterFunction<String>() {
@@ -76,16 +83,99 @@ public class registeredPeopleIndex {
 				}).returns(OdsEncounterRegister.class).assignTimestampsAndWatermarks(odsEncounterRegisterWithTimestampAssigner);
 
 		tableEnv.createTemporaryView("ODS_ENCOUNTER_REGISTER", odsEncounterRegisterReturnsStream
-				, $("RegisterId").as("REGISTER_ID")
-				, $("b"),
-				$("rowtime").rowtime());// adds an event-time attribute named 'rowtime');
+				, $("ts").rowtime()
+				, $("RegisterId").as("REGISTER_ID"));
+		
+		// 收费笔数 收费金额
+		WatermarkStrategy<Settlement> settlementWithTimestampAssigner = WatermarkStrategy
+		        .<Settlement>forBoundedOutOfOrderness(Duration.ofSeconds(20))
+		        .withTimestampAssigner((event, timestamp) -> event.getTs());
+		
+		SingleOutputStreamOperator<Settlement> settlementReturnsStream = kafkaStream
+				.filter(new FilterFunction<String>() {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public boolean filter(String value) throws Exception {
+						JSONObject parseKafkaObject = JSONObject.parseObject(value);
+						
+						Integer type = parseKafkaObject.getJSONObject("input").getInteger("type");
+						
+						return type.equals(SETTLEMENT);
+					}
+
+				}).flatMap((String str, Collector<Settlement> out) -> {
+					JSONObject filteredKafkaObject = JSONObject.parseObject(str);
+
+					JSONArray settlement = filteredKafkaObject.getJSONObject("message")
+							.getJSONArray("SETTLEMENT");
+
+					List<Settlement> settlementList = settlement
+							.toJavaList(Settlement.class);
+
+					settlementList.forEach(x -> out.collect(x));
+				}).returns(Settlement.class).assignTimestampsAndWatermarks(settlementWithTimestampAssigner);
+
+		tableEnv.createTemporaryView("SETTLEMENT", settlementReturnsStream
+				, $("ts").rowtime()
+				, $("settlementSelfPayingAmount").as("SETTLEMENT_SELF_PAYING_AMOUNT"));
+		
+		
+		// 处方张数 处方金额
+		WatermarkStrategy<OdsClinicalHerbRecipe> herbRecipeWithTimestampAssigner = WatermarkStrategy
+		        .<OdsClinicalHerbRecipe>forBoundedOutOfOrderness(Duration.ofSeconds(20))
+		        .withTimestampAssigner((event, timestamp) -> event.getTs());
+		
+		SingleOutputStreamOperator<OdsClinicalHerbRecipe> herbRecipeReturnsStream = kafkaStream
+				.filter(new FilterFunction<String>() {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public boolean filter(String value) throws Exception {
+						JSONObject parseKafkaObject = JSONObject.parseObject(value);
+						
+						Integer type = parseKafkaObject.getJSONObject("input").getInteger("type");
+						
+						return type.equals(HERB_RECIPE);
+					}
+
+				}).flatMap((String str, Collector<OdsClinicalHerbRecipe> out) -> {
+					JSONObject filteredKafkaObject = JSONObject.parseObject(str);
+
+					JSONArray settlement = filteredKafkaObject.getJSONObject("message")
+							.getJSONArray("ODS_CLINICAL_HERB_RECIPE");
+
+					List<OdsClinicalHerbRecipe> settlementList = settlement
+							.toJavaList(OdsClinicalHerbRecipe.class);
+
+					settlementList.forEach(x -> out.collect(x));
+				}).returns(OdsClinicalHerbRecipe.class).assignTimestampsAndWatermarks(herbRecipeWithTimestampAssigner);
+
+		tableEnv.createTemporaryView("ODS_CLINICAL_HERB_RECIPE", herbRecipeReturnsStream
+				, $("ts").rowtime() , $("recipeAmount").as("RECIPE_AMOUNT") );
+		
 
 		// 挂号人次
+		String registeredCount = " select count(*) from ODS_ENCOUNTER_REGISTER ";
+		
+		Table registeredCountSqlQuery = tableEnv.sqlQuery(registeredCount);
+		
+		tableEnv.toRetractStream(registeredCountSqlQuery, Row.class).print("registeredSql:==========>");
 
 		// 收费笔数 收费金额
-
+		String chargeSql = " select count(*),sum(SETTLEMENT_SELF_PAYING_AMOUNT) from SETTLEMENT ";
+		
+		Table chargeSqlQuery = tableEnv.sqlQuery(chargeSql);
+		
+		tableEnv.toRetractStream(chargeSqlQuery, Row.class).print("chargeSql:==========>");
+		
 		// 处方张数 处方金额
-
+		String recipeSql = " select count(*),sum(RECIPE_AMOUNT) from ODS_CLINICAL_HERB_RECIPE ";
+		
+		Table recipeSqlQuery = tableEnv.sqlQuery(recipeSql);
+		
+		tableEnv.toRetractStream(recipeSqlQuery, Row.class).print("recipeSql:==========>");
+		
 		executionEnvironment.execute();
 
 //		registeredConfirmFilter.writeAsText("F:\\weining\\flink\\笔记课件\\1.笔记\\test.txt");
