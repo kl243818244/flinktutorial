@@ -1,5 +1,7 @@
 package com.quota;
 
+import static org.apache.flink.table.api.Expressions.$;
+
 import java.time.Duration;
 import java.util.List;
 import java.util.Properties;
@@ -7,6 +9,7 @@ import java.util.Properties;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -23,8 +26,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.quota.entity.OdsClinicalHerbRecipe;
 import com.quota.entity.OdsEncounterRegister;
 import com.quota.entity.Settlement;
-
-import static org.apache.flink.table.api.Expressions.*;
+import com.quota.sink.MyIndexRichSinkFunction;
+import com.quota.sink.MyRegisteredRichSinkFunction;
 
 // 挂号人次
 public class registeredPeopleIndex {
@@ -46,7 +49,7 @@ public class registeredPeopleIndex {
 
 		Properties properties = new Properties();
 		properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "172.16.6.161:9092");
-		properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "test66566");
+		properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "testtttyyhy77");
 		properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
 		DataStream<String> kafkaStream = executionEnvironment.addSource(
@@ -160,25 +163,35 @@ public class registeredPeopleIndex {
 		
 		Table registeredCountSqlQuery = tableEnv.sqlQuery(registeredCount);
 		
-		tableEnv.toRetractStream(registeredCountSqlQuery, Row.class).print("registeredSql:==========>");
-
+		DataStream<Tuple2<Boolean, Row>> registeredRetractStream = tableEnv.toRetractStream(registeredCountSqlQuery, Row.class);
+		
+		registeredRetractStream.print("registeredSql:==========>");
+		
+		registeredRetractStream.addSink(new MyRegisteredRichSinkFunction("registeredIndex"));
+		
 		// 收费笔数 收费金额
 		String chargeSql = " select count(*),sum(SETTLEMENT_SELF_PAYING_AMOUNT) from SETTLEMENT ";
 		
 		Table chargeSqlQuery = tableEnv.sqlQuery(chargeSql);
 		
-		tableEnv.toRetractStream(chargeSqlQuery, Row.class).print("chargeSql:==========>");
+		DataStream<Tuple2<Boolean, Row>> chargeRetractStream = tableEnv.toRetractStream(chargeSqlQuery, Row.class);
+		
+		chargeRetractStream.print("chargeSql:==========>");
+		
+		chargeRetractStream.addSink(new MyIndexRichSinkFunction("chargeIndex"));
 		
 		// 处方张数 处方金额
 		String recipeSql = " select count(*),sum(RECIPE_AMOUNT) from ODS_CLINICAL_HERB_RECIPE ";
 		
 		Table recipeSqlQuery = tableEnv.sqlQuery(recipeSql);
 		
-		tableEnv.toRetractStream(recipeSqlQuery, Row.class).print("recipeSql:==========>");
+		DataStream<Tuple2<Boolean, Row>> recipeRetractStream = tableEnv.toRetractStream(recipeSqlQuery, Row.class);
+		
+		recipeRetractStream.print("recipeSql:==========>");
+		
+		recipeRetractStream.addSink(new MyIndexRichSinkFunction("recipeIndex"));
 		
 		executionEnvironment.execute();
-
-//		registeredConfirmFilter.writeAsText("F:\\weining\\flink\\笔记课件\\1.笔记\\test.txt");
 	}
 
 }

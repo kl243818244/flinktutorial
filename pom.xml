@@ -14,14 +14,14 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>validate-program-1222</name>
 	<description>flinktutorial</description>
-	
+
 	<!-- <flink-version>1.10.1</flink-version> -->
 	<properties>
-		
+
 		<flink-version>1.12.0</flink-version>
 	</properties>
-	
-	
+
+
 
 	<dependencies>
 
@@ -31,22 +31,19 @@
 			<artifactId>flink-java</artifactId>
 			<version>${flink-version}</version>
 		</dependency>
-		
+
 		<!-- https://mvnrepository.com/artifact/org.apache.flink/flink-clients -->
 		<dependency>
-		    <groupId>org.apache.flink</groupId>
-		    <artifactId>flink-clients_2.12</artifactId>
-		    <version>1.12.0</version>
+			<groupId>org.apache.flink</groupId>
+			<artifactId>flink-clients_2.12</artifactId>
+			<version>1.12.0</version>
 		</dependency>
 
-		
-		
+
+
 		<!-- https://mvnrepository.com/artifact/org.apache.flink/flink-streaming-scala -->
-<!-- 		<dependency>
-			<groupId>org.apache.flink</groupId>
-			<artifactId>flink-streaming-scala_2.12</artifactId>
-			<version>${flink-version}</version>
-		</dependency> -->
+		<!-- <dependency> <groupId>org.apache.flink</groupId> <artifactId>flink-streaming-scala_2.12</artifactId> 
+			<version>${flink-version}</version> </dependency> -->
 		<dependency>
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-connector-kafka_2.11</artifactId>
@@ -156,6 +153,13 @@
 			<artifactId>flink-connector-jdbc_2.11</artifactId>
 			<version>${flink-version}</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.apache.bahir</groupId>
+			<artifactId>flink-connector-redis_2.11</artifactId>
+			<version>1.0</version>
+		</dependency>
+
 
 
 	</dependencies>
